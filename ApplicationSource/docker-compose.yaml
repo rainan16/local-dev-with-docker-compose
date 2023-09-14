@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  frontend:  
+    build: ./LocalDevSample.Frontend/
+    image: ${IMGFRONTEND} 
+
+  backend-a:
+    build: ./LocalDevSample.Service.A/
+    image: ${IMGBACKENDA} 
+
+  backend-b:
+    build: ./LocalDevSample.Service.B/
+    image: ${IMGBACKENDB} 
+
+  backend-c:
+    build: ./LocalDevSample.Service.C/
+    image: ${IMGBACKENDC}         

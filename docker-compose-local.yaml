@@ -1,0 +1,84 @@
+## Get-started
+##
+## Start Compose:   docker-compose -f .\docker-compose-local.yaml up
+##
+## Open browser:    http://localhost:8080/
+##                  http://localhost:8080/api/a/weatherforecast
+##                  http://localhost:8080/api/b/weatherforecast
+
+version: '3.8'
+
+services:
+  nginx-proxy:
+    image: nginx
+    container_name: nginx-reverse-proxy
+    restart: always
+    ports:
+      - "8080:80"      
+    networks:
+      - local_dev_network      
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend-a
+      - backend-b
+
+  frontend:  
+    container_name: frontend-svc
+    image: ${IMGFRONTEND}
+    restart: always
+    networks:
+      - local_dev_network    
+    ports:
+      - "8081:80"  # Map host port 8081 to container port 80
+    depends_on:
+      - backend-a        
+      - backend-b 
+      - backend-c 
+
+  backend-a:
+    container_name: backend-svc-a
+    image: ${IMGBACKENDA}
+    restart: always    
+    volumes:
+      - type: bind
+        source: ./DockerSettings.ServiceA.WebApi/appsettings.Docker.json
+        target: /app/appsettings.json   
+    networks:
+      - local_dev_network    
+    ports:
+      - "8082:80"  # Map host port 8082 to container port 80  
+    depends_on:
+      - backend-c        
+
+  backend-b:  
+    container_name: backend-svc-b
+    image: ${IMGBACKENDB}
+    restart: always    
+    volumes:
+      - type: bind
+        source: ./DockerSettings.ServiceB.WebApi/appsettings.Docker.json
+        target: /app/appsettings.json   
+    networks:
+      - local_dev_network    
+    ports:
+      - "8083:80"  # Map host port 8083 to container port 80  
+    depends_on:
+      - backend-c     
+
+  backend-c:  
+    container_name: backend-svc-c
+    image: ${IMGBACKENDC}
+    restart: always    
+    volumes:
+      - type: bind
+        source: ./DockerSettings.ServiceC.WebApi/appsettings.Docker.json
+        target: /app/appsettings.json   
+    networks:
+      - local_dev_network    
+    ports:
+      - "8084:80"  # Map host port 8084 to container port 80           
+
+networks:
+  local_dev_network:                
