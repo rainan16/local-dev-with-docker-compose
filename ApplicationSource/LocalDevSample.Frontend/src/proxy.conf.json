@@ -1,0 +1,16 @@
+{
+  "/api/a/": {
+    "target": "http://localhost:8080/api/a/",
+    "secure": false,
+    "pathRewrite": {
+      "^/api/a/": ""
+    }
+  },
+  "/api/b/": {
+    "target": "http://localhost:8080/api/b/",
+    "secure": false,
+    "pathRewrite": {
+      "^/api/b/": ""
+    }
+  }
+}

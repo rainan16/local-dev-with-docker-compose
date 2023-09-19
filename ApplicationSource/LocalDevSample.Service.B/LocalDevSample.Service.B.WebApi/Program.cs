@@ -5,6 +5,17 @@ var builder = WebApplication.CreateBuilder(args);
 var cServiceOptions = builder.Configuration.GetSection("CService").Get<CServiceOptions>();
 builder.Services.AddTransient<ICServiceOptions>(_ => cServiceOptions!);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy
+                .WithOrigins("*")
+                .WithMethods("GET");
+        });
+});
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -19,8 +30,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseDeveloperExceptionPage();
+    app.UseHttpLogging();
 }
-app.UseHttpLogging();
+app.UseCors();
 
 var summaries = new[]
 {

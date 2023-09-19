@@ -4,11 +4,13 @@
 
 When developing applications with only a few services (e.g. MVP, simple apps) but different teams we often need a 'simple' way to debug/test **our** services in interaction with other services locally. Provisioning a local k8s cluster like in the cloud environment may be suitable, but sometimes this is just a massive overhead (preparing, maintaining, fixing, ...).
 
-Instead of running a local k8s cluster (that comes with its own issues and difficulties) another solution is to "simulate" the same microservice architecture by using "Docker Compose". This is easier to prepare and maintain (e.g. no need to install a k8s distribution such as k3s, kind or minikube). Finally running a simple 
+Instead of running a local k8s cluster (that comes with its own issues and difficulties) another solution is to "simulate" the same microservice architecture by using "Docker Compose". This is easier to prepare and maintain (e.g. no need to install a k8s distribution such as k3s, kind or minikube). Finally running a single command is all we need:
 
-> `docker compose -f "docker-compose-local.yaml" up -d` 
+> ```shell
+> docker compose -f "docker-compose-local.yaml" up -d
+> ```
 
-is all we need.
+
 
 ### Restrictions
 - no service mesh
@@ -25,7 +27,7 @@ graph TD
 
     LB --> k8s
 
-    subgraph k8s[Architecture same as in k8s cluster]
+    subgraph k8s[Architecture >> similar the k8s cluster]
         style k8s align:left;
         NGINX[NGINX]
 
@@ -62,8 +64,15 @@ NGINX is often used as reverse proxy to provide one [API endpoint for different 
 Each service is packed in its own Docker container, adhering to [microservice architecture](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/architect-microservice-container-applications/).
 
 ## Run entire application in (local) Docker containers
+1. Build images (optional)
 ```shell
-docker compose -f docker-compose-local.yaml up
+cd ./ApplicationSource/
+docker compose build
+cd ..
+```
+2. Run Docker compose
+```shell
+docker compose -f docker-compose-local.yaml up -d
 ```
 
 ## Debugging `Backend Service B`: redirecting traffic to local IDE
@@ -80,7 +89,7 @@ graph TD
             B[Backend Service B]
         end
 
-        NGINX -->|proxy to Docker Container| A
+        NGINX[NGINX Port : 8080] -->|proxy to Docker Container| A
         NGINX -->|proxy to IDE | LocalDev
         C -.-|expose | CP
         A -->|communicate with| C
@@ -108,7 +117,7 @@ e.g. [http://localhost:8080/api/a/weatherforecast](http://localhost:8080/api/a/w
 
 
 
-## Debugging `Backend Service C`: redircting traffic to local IDE
+## Debugging `Backend Service C`: redirecting traffic to local IDE
 ```mermaid
 graph TD
         subgraph Services[ ]
@@ -120,10 +129,10 @@ graph TD
             C[Backend Service C]
         end
 
-        NGINX -->|proxy to Docker Container| A
+        NGINX[NGINX Port : 8080] -->|proxy to Docker Container| A
         NGINX -->|proxy to Docker Container | B
-        A -->|redirect to IDE local| LocalDev
-        B -->|redirect to IDE local| LocalDev
+        A -->|redirect to IDE| LocalDev
+        B -->|redirect to IDE| LocalDev
 ```
 1. Shut down all containers
 ```shell
@@ -140,11 +149,21 @@ docker compose -f docker-compose-local.yaml down
 docker compose -f docker-compose-local.yaml up
 ```
 
-To recive traffic from `Backend Service A` in `Backend Service C` use the endpoints provided by Docker Desktop on `http://host.docker.internal`
+To recive traffic from `Backend Service A` in the IDE running `Backend Service C` use endpoints provided by Docker Desktop on `http://host.docker.internal`
 
 For a running the service on your local computer, listening on e.g. port 5215, this results in:  
 `http://host.docker.internal:5215` 
 
 
 ## Docker image tags
-For the sake of simplicity, the repo contains .env files to set environment variables used as images tags in docker-compose files. Normally, you wouldn't check in the .env file.
+For the sake of simplicity, this Github repository contains `.env` files to set environment variables used as images tags in docker-compose files. Normally, you wouldn't check in .env-files.
+
+## FAQ
+
+### I want to use the latest image tags. How to I skip double checking/changing the .env file on every start?
+
+> *ToDo!*
+
+### How can I prepare custom scenarios (e.g. 'Redirect and debug service C')?
+
+> *ToDo!*
